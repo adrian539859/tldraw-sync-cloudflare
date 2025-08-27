@@ -1,5 +1,6 @@
 import { useSync } from '@tldraw/sync'
 import { Tldraw } from 'tldraw'
+import { config } from './config'
 import { getBookmarkPreview } from './getBookmarkPreview'
 import { multiplayerAssetStore } from './multiplayerAssetStore'
 
@@ -10,13 +11,29 @@ function App() {
 	// Create a store connected to multiplayer.
 	const store = useSync({
 		// We need to know the websockets URI...
-		uri: `${window.location.origin}/api/connect/${roomId}`,
+		uri: config.getWebSocketUrl(roomId),
 		// ...and how to handle static assets like images & videos
 		assets: multiplayerAssetStore,
 	})
 
 	return (
 		<div style={{ position: 'fixed', inset: 0 }}>
+			{config.isLocalhost && (
+				<div style={{ 
+					position: 'absolute', 
+					top: 10, 
+					left: 10, 
+					background: '#4ade80', 
+					color: 'white', 
+					padding: '4px 8px', 
+					borderRadius: '4px',
+					fontSize: '12px',
+					zIndex: 1000,
+					fontFamily: 'monospace'
+				}}>
+					🏠 Localhost Mode
+				</div>
+			)}
 			<Tldraw
 				// we can pass the connected store into the Tldraw component which will handle
 				// loading states & enable multiplayer UX like cursors & a presence menu

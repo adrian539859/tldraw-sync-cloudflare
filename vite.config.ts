@@ -4,7 +4,22 @@ import { defineConfig } from 'vite'
 
 // https://vitejs.dev/config/
 export default defineConfig(() => {
-	return {
-		plugins: [cloudflare(), react()],
+	const isCloudflare = process.env.CLOUDFLARE === 'true'
+	
+	const config = {
+		plugins: [react()],
+		server: {
+			port: 5137
+		},
+		build: {
+			outDir: 'dist/client'
+		}
 	}
+
+	// Add Cloudflare plugin only when explicitly requested
+	if (isCloudflare) {
+		config.plugins.push(cloudflare())
+	}
+
+	return config
 })

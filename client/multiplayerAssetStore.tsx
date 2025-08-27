@@ -1,4 +1,5 @@
 import { TLAssetStore, uniqueId } from 'tldraw'
+import { config } from './config'
 
 // How does our server handle assets like images and videos?
 export const multiplayerAssetStore: TLAssetStore = {
@@ -7,9 +8,9 @@ export const multiplayerAssetStore: TLAssetStore = {
 		// ...create a unique name & URL...
 		const id = uniqueId()
 		const objectName = `${id}-${file.name}`.replace(/[^a-zA-Z0-9.]/g, '-')
-		const url = `/api/uploads/${objectName}`
+		const url = config.getApiUrl(`/uploads/${objectName}`)
 
-		// ...POST it to out worker to upload it...
+		// ...POST it to our server to upload it...
 		const response = await fetch(url, {
 			method: 'POST',
 			body: file,

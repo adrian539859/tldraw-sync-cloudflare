@@ -1,4 +1,5 @@
 import { AssetRecordType, TLAsset, TLBookmarkAsset, getHashForString } from 'tldraw'
+import { config } from './config'
 
 // How does our server handle bookmark unfurling?
 export async function getBookmarkPreview({ url }: { url: string }): Promise<TLAsset> {
@@ -19,7 +20,8 @@ export async function getBookmarkPreview({ url }: { url: string }): Promise<TLAs
 
 	try {
 		// try to fetch the preview data from the server
-		const response = await fetch(`/api/unfurl?url=${encodeURIComponent(url)}`)
+		const apiUrl = config.getApiUrl(`/unfurl?url=${encodeURIComponent(url)}`)
+		const response = await fetch(apiUrl)
 		const data: any = await response.json()
 
 		// fill in our asset with whatever info we found
