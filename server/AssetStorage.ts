@@ -38,38 +38,25 @@ export async function handleAssetUpload(req: Request, res: Response) {
 			return res.status(409).json({ error: 'Upload already exists' })
 		}
 
-		// Store the asset
-		const chunks: Buffer[] = []
-		req.on('data', (chunk) => {
-			chunks.push(chunk)
-		})
+		// Get the buffer from the request body (Express raw middleware provides this)
+		const buffer = req.body as Buffer
+		
+		if (!buffer || buffer.length === 0) {
+			return res.status(400).json({ error: 'No data received' })
+		}
+		
+		// Write file with metadata
+		const metadata = {
+			contentType,
+			size: buffer.length,
+			uploadedAt: new Date().toISOString(),
+			originalHeaders: req.headers
+		}
+		
+		fs.writeFileSync(assetPath, buffer)
+		fs.writeFileSync(`${assetPath}.meta`, JSON.stringify(metadata))
 
-		req.on('end', () => {
-			try {
-				const buffer = Buffer.concat(chunks)
-				
-				// Write file with metadata
-				const metadata = {
-					contentType,
-					size: buffer.length,
-					uploadedAt: new Date().toISOString(),
-					originalHeaders: req.headers
-				}
-				
-				fs.writeFileSync(assetPath, buffer)
-				fs.writeFileSync(`${assetPath}.meta`, JSON.stringify(metadata))
-
-				res.json({ ok: true })
-			} catch (error) {
-				console.error('Error saving asset:', error)
-				res.status(500).json({ error: 'Failed to save asset' })
-			}
-		})
-
-		req.on('error', (error) => {
-			console.error('Error receiving asset:', error)
-			res.status(500).json({ error: 'Failed to receive asset' })
-		})
+		res.json({ ok: true })
 
 	} catch (error) {
 		console.error('Error handling asset upload:', error)
